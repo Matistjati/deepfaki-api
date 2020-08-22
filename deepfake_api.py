@@ -9,7 +9,7 @@ from demo import make_animation
 from skimage import img_as_ubyte
 import warnings
 warnings.filterwarnings("ignore")
-
+import pickle
 
 class DeepFakeApi:
     @staticmethod
@@ -46,9 +46,12 @@ class DeepFakeApi:
         print("Resizing driver and source image")
         source_image = resize(source_image, (256, 256))[..., :3]
 
-        # Resize if necessary
-        if meta_data['source_size'] != (256, 256) or meta_data['size'] != (256, 256):
+        # Resize only if necessary
+        if meta_data['source_size'] != (256, 256) and meta_data['size'] != (256, 256):
             driving_video = [resize(frame, (256, 256))[..., :3] for frame in driving_video]
+        else:
+            # We still need to remap the color values from [0,256] to [0,1]
+            driving_video = [(frame * (1 / 256))[..., :3] for frame in driving_video]
 
 
         print("Creating animation")
@@ -57,7 +60,6 @@ class DeepFakeApi:
         # save resulting video
         print("Saving output")
         imageio.mimsave(output_path, [img_as_ubyte(frame) for frame in predictions], fps=fps)
-
 
 
 if __name__ == "__main__":
