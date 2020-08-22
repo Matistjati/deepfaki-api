@@ -31,8 +31,10 @@ class DeepFakeApi:
         print("Loading driver and source image")
         source_image = imageio.imread(image_path)
         reader = imageio.get_reader(driver_path)
+        meta_data = reader.get_meta_data()
 
         fps = reader.get_meta_data()['fps']
+
         driving_video = []
         try:
             for im in reader:
@@ -43,7 +45,11 @@ class DeepFakeApi:
 
         print("Resizing driver and source image")
         source_image = resize(source_image, (256, 256))[..., :3]
-        driving_video = [resize(frame, (256, 256))[..., :3] for frame in driving_video]
+
+        # Resize if necessary
+        if meta_data['source_size'] != (256, 256) or meta_data['size'] != (256, 256):
+            driving_video = [resize(frame, (256, 256))[..., :3] for frame in driving_video]
+
 
         print("Creating animation")
         predictions = make_animation(source_image, driving_video, DeepFakeApi.generator, DeepFakeApi.kp_detector, cpu=False)
