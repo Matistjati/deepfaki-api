@@ -10,6 +10,8 @@ from skimage import img_as_ubyte
 import warnings
 warnings.filterwarnings("ignore")
 import pickle
+import moviepy.editor as mp
+
 
 class DeepFakeApi:
     @staticmethod
@@ -21,10 +23,11 @@ class DeepFakeApi:
 
         print("Loading checkpoints")
         DeepFakeApi.generator, DeepFakeApi.kp_detector = load_checkpoints("dependencies/first-order-model/config/vox-256.yaml",
-                                                         "checkpoints/vox-cpk.pth.tar",
-                                                         cpu=False)
+                                                                          "checkpoints/vox-cpk.pth.tar",
+                                                                          cpu=False)
+
     @staticmethod
-    def generate_deepfake(image_path, driver_path, output_path="output/output.mp4"):
+    def generate_deepfake(image_path, driver_path, sound_path, output_path="output/output.mp4"):
         if not hasattr(DeepFakeApi, "initialized"):
             DeepFakeApi.__init__()
 
@@ -59,10 +62,14 @@ class DeepFakeApi:
 
         # save resulting video
         print("Saving output")
-        imageio.mimsave(output_path, [img_as_ubyte(frame) for frame in predictions], fps=fps)
+        clips = [mp.ImageClip(img_as_ubyte(m)).set_duration(1 / fps)
+                 for m in predictions]
+
+        concat_clip = mp.concatenate_videoclips(clips, method="compose")
+        concat_clip.write_videofile(output_path, audio=sound_path, fps=fps)
 
 
 if __name__ == "__main__":
-    DeepFakeApi.generate_deepfake("input/obama.jpg", "input/baka mitai driver.mp4", output_path="output/output.mp4")
+    DeepFakeApi.generate_deepfake("input/obama.jpg", "drivers/baka mitai driver.mp4", "drivers/baka mitai.mp3", "output/output.mp4")
 
 
