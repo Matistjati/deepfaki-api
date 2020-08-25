@@ -69,10 +69,28 @@ class DeepFakeApi:
         audio_clip = audio_clip.set_end(meta_data["duration"])
         concat_clip = mp.concatenate_videoclips(clips, method="compose")
         concat_clip = concat_clip.set_audio(audio_clip)
+
+        # Practically infinite but not really, just in case i am a bad programmer and it doesnt end
+        if os.path.isfile(output_path):
+            path_split = output_path.split(".")
+            path_split.insert(-1, 1)
+            path_split[-1] = "." + path_split[-1]
+            for i in range(1, 512):
+                if i > 510:
+                    print("Infinite loop error! Aborting")
+                    break
+
+                path_split[-2] = str(i)
+                test_path = "".join(path_split)
+                if not os.path.isfile(test_path):
+                    output_path = test_path
+                    break
+
+
         concat_clip.write_videofile(output_path, fps=fps)
 
 
 if __name__ == "__main__":
-    DeepFakeApi.generate_deepfake("input/sixten.png", "drivers/baka mitai driver.mp4", "drivers/baka mitai.mp3", "output/output.mp4")
+    DeepFakeApi.generate_deepfake("input/obama.jpg", "drivers/baka mitai driver.mp4", "drivers/baka mitai.mp3", "output/output.mp4")
 
 
