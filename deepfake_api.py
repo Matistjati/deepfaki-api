@@ -65,11 +65,14 @@ class DeepFakeApi:
         clips = [mp.ImageClip(img_as_ubyte(m)).set_duration(1 / fps)
                  for m in predictions]
 
+        audio_clip = mp.AudioFileClip(sound_path)
+        audio_clip = audio_clip.set_end(meta_data["duration"])
         concat_clip = mp.concatenate_videoclips(clips, method="compose")
-        concat_clip.write_videofile(output_path, audio=sound_path, fps=fps)
+        concat_clip = concat_clip.set_audio(audio_clip)
+        concat_clip.write_videofile(output_path, fps=fps)
 
 
 if __name__ == "__main__":
-    DeepFakeApi.generate_deepfake("input/obama.jpg", "drivers/baka mitai driver.mp4", "drivers/baka mitai.mp3", "output/output.mp4")
+    DeepFakeApi.generate_deepfake("input/sixten.png", "drivers/baka mitai driver.mp4", "drivers/baka mitai.mp3", "output/output.mp4")
 
 
