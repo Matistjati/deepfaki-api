@@ -1,16 +1,19 @@
+# Import a dependency in a subfolder
+import sys
+sys.path.append('dependencies/first-order-model/')
+# Suppress warning generated from external code
+import warnings
+warnings.filterwarnings("ignore")
+import os.path
 import imageio
 import numpy as np
 from skimage.transform import resize
-import sys
-import os.path
-sys.path.append('dependencies/first-order-model/')
 from demo import load_checkpoints
 from demo import make_animation
 from skimage import img_as_ubyte
-import warnings
-warnings.filterwarnings("ignore")
 import pickle
 import moviepy.editor as mp
+
 
 
 class DeepFakeApi:
